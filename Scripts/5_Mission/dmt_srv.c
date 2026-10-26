@@ -38,14 +38,6 @@ class DMT_Server
         GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Tick, 1000, true);
     }
 
-    static void Stop()
-    {
-        if (!s_Started) return;
-        GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).Remove(Tick);
-        s_Started = false;
-        Log(40, "STOP");
-    }
-
     static void Tick()
     {
         if (!GetGame())
@@ -96,5 +88,4 @@ modded class MissionServer
         DMT_Server.Start();
         DMT_Server.Log(93, "MissionServer.ready");
     }
-
 };
