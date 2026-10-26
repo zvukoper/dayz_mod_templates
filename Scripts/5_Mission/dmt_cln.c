@@ -88,7 +88,7 @@ class DMT_Client
         Param7<int, int, int, int, int, int, int> p = new Param7<int, int, int, int, int, int, int>(0, 0, 0, 0, 0, 0, 0);
         if (!ctx.Read(p))
         {
-            Log(79, "RPC read=0");
+            Log(83, "RPC read=0");
             return;
         }
 
@@ -104,7 +104,7 @@ class DMT_Client
 
         if (s_Elapsed == 1 || (s_Elapsed % 30) == 0)
         {
-            Log(95, "RPC ok n=" + s_Elapsed.ToString() + " t=" + Pad2(s_Hour) + ":" + Pad2(s_Minute) + ":" + Pad2(s_Second));
+            Log(98, "RPC ok n=" + s_Elapsed.ToString() + " t=" + Pad2(s_Hour) + ":" + Pad2(s_Minute) + ":" + Pad2(s_Second));
             Chat("RPC OK n=" + s_Elapsed.ToString());
         }
     }
