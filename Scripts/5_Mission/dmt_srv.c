@@ -1,45 +1,45 @@
-// DMT Minimal UI — server. Compact logs; authoritative clock packet once/sec.
+// DMT test interface — server. Send the server machine's current time once per second.
 
 
-class DMT_RPC
+class DMT_RemoteProcedureCallId
 {
-    static const int TIME = 19740621;
+    static const int SERVER_TIME_UPDATE = 19740621;
 };
 
 class DMT_Server
 {
-    static int s_Elapsed;
-    static bool s_NoPlayers;
-    static bool s_Started;
+    static int s_ServerSequenceNumber;
+    static bool s_NoConnectedPlayers;
+    static bool s_ServerClockStarted;
 
-    static string Pad2(int v)
+    static string FormatTwoDigits(int value)
     {
-        if (v < 10) return "0" + v.ToString();
-        return v.ToString();
+        if (value < 10) return "0" + value.ToString();
+        return value.ToString();
     }
 
-    static void Log(int line, string msg)
+    static void Log(int sourceLine, string message)
     {
-        Print("[DMT][dmt_srv:" + line.ToString() + "] " + msg);
+        Print("[DMT][dmt_srv:" + sourceLine.ToString() + "] " + message);
     }
 
     static void Start()
     {
-        if (s_Started)
+        if (s_ServerClockStarted)
         {
-            Log(22, "START already=1");
+            Log(30, "Server clock already started");
             return;
         }
         if (!GetGame() || !GetGame().IsServer())
         {
-            Log(26, "START server=0");
+            Log(35, "Server role unavailable; server clock was not started");
             return;
         }
-        s_Started = true;
-        s_Elapsed = 0;
-        s_NoPlayers = false;
+        s_ServerClockStarted = true;
+        s_ServerSequenceNumber = 0;
+        s_NoConnectedPlayers = false;
 
-        Log(30, "START queue=1000ms");
+        Log(42, "Server time update scheduled; interval milliseconds=1000");
         GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Tick, 1000, true);
     }
 
@@ -47,14 +47,14 @@ class DMT_Server
     {
         if (!GetGame())
         {
-            Log(46, "TICK game=0");
+            Log(50, "Server game instance is unavailable during time update");
             return;
         }
 
         int year, month, day, hour, minute, second;
         GetYearMonthDay(year, month, day);
         GetHourMinuteSecond(hour, minute, second);
-        s_Elapsed++;
+        s_ServerSequenceNumber++;
 
         array<Man> players = new array<Man>();
         GetGame().GetPlayers(players);
@@ -65,21 +65,21 @@ class DMT_Server
             if (!player || !player.GetIdentity()) continue;
 
             Param7<int, int, int, int, int, int, int> payload = new Param7<int, int, int, int, int, int, int>(
-                year, month, day, hour, minute, second, s_Elapsed
+                year, month, day, hour, minute, second, s_ServerSequenceNumber
             );
-            GetGame().RPCSingleParam(player, DMT_RPC.TIME, payload, true, player.GetIdentity());
+            GetGame().RPCSingleParam(player, DMT_RemoteProcedureCallId.SERVER_TIME_UPDATE, payload, true, player.GetIdentity());
             sent++;
         }
 
         bool noPlayers = sent == 0;
-        if (noPlayers != s_NoPlayers)
+        if (noPlayers != s_NoConnectedPlayers)
         {
-            s_NoPlayers = noPlayers;
-            Log(78, "PLAYERS none=" + noPlayers.ToString());
+            s_NoConnectedPlayers = noPlayers;
+            Log(78, noPlayers ? "No connected players were found" : "Connected players are available");
         }
-        if (s_Elapsed == 1 || s_Elapsed % 30 == 0)
+        if (s_ServerSequenceNumber == 1 || s_ServerSequenceNumber % 30 == 0)
         {
-            Log(83, "SYNC n=" + s_Elapsed.ToString() + " t=" + Pad2(hour) + ":" + Pad2(minute) + ":" + Pad2(second) + " p=" + sent.ToString());
+            Log(82, "Server time sent: sequence=" + s_ServerSequenceNumber.ToString() + " time=" + FormatTwoDigits(hour) + ":" + FormatTwoDigits(minute) + ":" + FormatTwoDigits(second) + " connected player count=" + sent.ToString());
         }
     }
 };
@@ -89,8 +89,8 @@ modded class MissionServer
     override void OnInit()
     {
         super.OnInit();
-        DMT_Server.Log(90, "MissionServer.OnInit");
+        DMT_Server.Log(92, "Server mission initialization started");
         DMT_Server.Start();
-        DMT_Server.Log(93, "MissionServer.ready");
+        DMT_Server.Log(94, "Server mission initialization completed");
     }
 };
