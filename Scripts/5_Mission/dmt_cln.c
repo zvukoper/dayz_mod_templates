@@ -5,6 +5,8 @@ class DMT_Client
     static TextWidget s_Time;
     static int s_Year, s_Month, s_Day, s_Hour, s_Minute, s_Second, s_Elapsed;
     static int s_LastRemoteProcedureCallSequence;
+    static int s_LastProcessedNetworkUpdateCount;
+    static int s_LastReportedReadErrorCount;
     static float s_RemoteProcedureCallAge;
     static bool s_RemoteProcedureCallTimedOut;
     static bool s_HasTime, s_Inventory, s_Ready;
@@ -49,7 +51,7 @@ class DMT_Client
         MissionGameplay mission = MissionGameplay.Cast(GetGame().GetMission());
         if (!mission || !mission.m_Chat)
         {
-            Log(52, "Chat messages are unavailable");
+            Log(54, "Chat messages are unavailable");
             return;
         }
         ChatMessageEventParams p = new ChatMessageEventParams(CCSystem, "", "[DayZ Minimal Interface] " + msg, "");
@@ -58,68 +60,60 @@ class DMT_Client
 
     static void Init()
     {
-        Log(61, "Initialization started");
+        Log(63, "Initialization started");
         if (s_Ready)
         {
-            Log(64, "Initialization already completed");
+            Log(66, "Initialization already completed");
             return;
         }
 
         WorkspaceWidget ws = GetGame().GetWorkspace();
         if (!ws)
         {
-            Log(71, "Widget workspace is unavailable");
+            Log(73, "Widget workspace is unavailable");
             return;
         }
 
         s_Root = ws.CreateWidgets("dmt/GUI/dmt.layout");
-        Log(76, "Layout root creation succeeded=" + (s_Root != null).ToString());
+        Log(78, "Layout root creation succeeded=" + (s_Root != null).ToString());
         if (!s_Root)
         {
-            Log(79, "ERROR layout creation failed path=dmt/GUI/dmt.layout");
+            Log(81, "ERROR layout creation failed path=dmt/GUI/dmt.layout");
             Chat("Interface layout creation failed");
             return;
         }
 
         s_Time = TextWidget.Cast(s_Root.FindAnyWidget("DMT_Time"));
-        Log(85, "Text widget DMT_Time found=" + (s_Time != null).ToString());
+        Log(87, "Text widget DMT_Time found=" + (s_Time != null).ToString());
         if (!s_Time)
         {
             s_Root.Unlink();
             s_Root = null;
-            Log(90, "ERROR required text widget is missing name=DMT_Time");
+            Log(92, "ERROR required text widget is missing name=DMT_Time");
             Chat("Required text widget was not found");
             return;
         }
 
         s_Root.Show(true);
         s_Ready = true;
-        Log(97, "Interface visibility enabled");
+        Log(99, "Interface visibility enabled");
         Chat("Interface initialized successfully");
     }
 
-    static void OnServerTime(ParamsReadContext ctx)
+    static void OnServerTime(int year, int month, int day, int hour, int minute, int second, int elapsed)
     {
         if (!s_HasTime)
         {
-            Log(105, "First server time update received");
+            Log(107, "First server time update received");
         }
 
-        Param7<int, int, int, int, int, int, int> p = new Param7<int, int, int, int, int, int, int>(0, 0, 0, 0, 0, 0, 0);
-        if (!ctx.Read(p))
-        {
-            Log(111, "Remote procedure call data could not be read");
-            Chat("Remote procedure call data could not be read");
-            return;
-        }
-
-        s_Year = p.param1;
-        s_Month = p.param2;
-        s_Day = p.param3;
-        s_Hour = p.param4;
-        s_Minute = p.param5;
-        s_Second = p.param6;
-        s_Elapsed = p.param7;
+        s_Year = year;
+        s_Month = month;
+        s_Day = day;
+        s_Hour = hour;
+        s_Minute = minute;
+        s_Second = second;
+        s_Elapsed = elapsed;
         s_HasTime = true;
         s_RemoteProcedureCallAge = 0;
         s_RemoteProcedureCallTimedOut = false;
@@ -127,19 +121,19 @@ class DMT_Client
 
         if (s_Elapsed <= s_LastRemoteProcedureCallSequence)
         {
-            Log(130, "Remote procedure call arrived out of order: previous sequence=" + s_LastRemoteProcedureCallSequence.ToString() + " current sequence=" + s_Elapsed.ToString());
+            Log(124, "Remote procedure call arrived out of order: previous sequence=" + s_LastRemoteProcedureCallSequence.ToString() + " current sequence=" + s_Elapsed.ToString());
             Chat("Remote procedure call arrived out of order");
         }
         else if (s_LastRemoteProcedureCallSequence > 0 && s_Elapsed > s_LastRemoteProcedureCallSequence + 1)
         {
-            Log(135, "Remote procedure call sequence skipped: previous sequence=" + s_LastRemoteProcedureCallSequence.ToString() + " current sequence=" + s_Elapsed.ToString());
+            Log(129, "Remote procedure call sequence skipped: previous sequence=" + s_LastRemoteProcedureCallSequence.ToString() + " current sequence=" + s_Elapsed.ToString());
             Chat("Remote procedure call sequence skipped");
         }
         s_LastRemoteProcedureCallSequence = s_Elapsed;
 
         if (s_Elapsed == 1 || (s_Elapsed % 30) == 0)
         {
-            Log(142, "Server time received successfully: sequence=" + s_Elapsed.ToString() + " time=" + Pad2(s_Hour) + ":" + Pad2(s_Minute) + ":" + Pad2(s_Second));
+            Log(136, "Server time received successfully: sequence=" + s_Elapsed.ToString() + " time=" + Pad2(s_Hour) + ":" + Pad2(s_Minute) + ":" + Pad2(s_Second));
             Chat("Server time received successfully: sequence=" + s_Elapsed.ToString());
         }
     }
@@ -149,6 +143,12 @@ class DMT_Client
         if (!GetGame() || GetGame().IsServer())
         {
             return;
+        }
+        if (DMT_NetworkTimeState.s_ReadErrorCount > s_LastReportedReadErrorCount)
+        {
+            s_LastReportedReadErrorCount = DMT_NetworkTimeState.s_ReadErrorCount;
+            Log(150, "Remote procedure call data could not be read");
+            Chat("Remote procedure call data could not be read");
         }
         if (!s_Ready)
         {
@@ -160,6 +160,19 @@ class DMT_Client
             s_Ready = false;
             return;
         }
+        if (DMT_NetworkTimeState.s_ReceivedUpdateCount > s_LastProcessedNetworkUpdateCount)
+        {
+            s_LastProcessedNetworkUpdateCount = DMT_NetworkTimeState.s_ReceivedUpdateCount;
+            OnServerTime(
+                DMT_NetworkTimeState.s_Year,
+                DMT_NetworkTimeState.s_Month,
+                DMT_NetworkTimeState.s_Day,
+                DMT_NetworkTimeState.s_Hour,
+                DMT_NetworkTimeState.s_Minute,
+                DMT_NetworkTimeState.s_Second,
+                DMT_NetworkTimeState.s_Sequence
+            );
+        }
         if (!s_HasTime)
         {
             s_Time.SetText("Waiting for server time...");
@@ -170,7 +183,7 @@ class DMT_Client
         if (s_RemoteProcedureCallAge >= 5.0 && !s_RemoteProcedureCallTimedOut)
         {
             s_RemoteProcedureCallTimedOut = true;
-            Log(173, "Server time updates have stopped: elapsed seconds=" + s_RemoteProcedureCallAge.ToString());
+            Log(186, "Server time updates have stopped: elapsed seconds=" + s_RemoteProcedureCallAge.ToString());
             Chat("Server time updates have stopped");
         }
 
@@ -188,12 +201,12 @@ class DMT_Client
             s_Inventory = inventory;
             if (inventory)
             {
-                Log(191, "Inventory opened");
+                Log(204, "Inventory opened");
                 Chat("Inventory opened");
             }
             else
             {
-                Log(196, "Inventory closed");
+                Log(209, "Inventory closed");
                 Chat("Inventory closed");
             }
         }
@@ -221,7 +234,7 @@ modded class MissionGameplay
         {
             return;
         }
-        DMT_Client.Log(224, "Mission gameplay initialization started");
+        DMT_Client.Log(237, "Mission gameplay initialization started");
         DMT_Client.Init();
     }
 
@@ -237,7 +250,7 @@ modded class MissionGameplay
 
     override void OnMissionFinish()
     {
-        DMT_Client.Log(240, "Mission gameplay cleanup started");
+        DMT_Client.Log(253, "Mission gameplay cleanup started");
         if (DMT_Client.s_Root)
         {
             DMT_Client.s_Root.Unlink();
@@ -250,20 +263,11 @@ modded class MissionGameplay
         DMT_Client.s_RemoteProcedureCallAge = 0;
         DMT_Client.s_RemoteProcedureCallTimedOut = false;
         DMT_Client.s_LastRemoteProcedureCallSequence = 0;
+        DMT_Client.s_LastProcessedNetworkUpdateCount = 0;
+        DMT_Client.s_LastReportedReadErrorCount = 0;
         DMT_Client.s_LastText = "";
+        DMT_NetworkTimeState.Reset();
         super.OnMissionFinish();
     }
 };
 
-modded class DayZGame
-{
-    override void OnRPC(PlayerIdentity sender, Object target, int rpc_type, ParamsReadContext ctx)
-    {
-        // Preserve the standard event dispatcher before handling the time update.
-        super.OnRPC(sender, target, rpc_type, ctx);
-        if (GetGame() && !GetGame().IsServer() && rpc_type == DMT_RemoteProcedureCallId.SERVER_TIME_UPDATE)
-        {
-            DMT_Client.OnServerTime(ctx);
-        }
-    }
-};
