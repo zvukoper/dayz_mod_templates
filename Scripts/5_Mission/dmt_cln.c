@@ -140,7 +140,7 @@ class DMT_Client
         s_RpcAge += timeslice;
         if (s_RpcAge >= 5.0)
         {
-            Log(101, "RPC stale age=" + s_RpcAge.ToString());
+            Log(104, "RPC stale age=" + s_RpcAge.ToString());
             Chat("RPC STALE");
             s_RpcAge = 0;
         }
