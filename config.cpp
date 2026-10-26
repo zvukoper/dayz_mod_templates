@@ -31,7 +31,7 @@ class CfgMods
             class gameScriptModule
             {
                 value = "";
-                files[] = {};
+                files[] = { "dmt/Scripts/3_Game" };
             };
             class worldScriptModule
             {
