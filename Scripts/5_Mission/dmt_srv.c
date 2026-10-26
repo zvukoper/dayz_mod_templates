@@ -104,7 +104,11 @@ class DMT_Server
             sent++;
         }
 
-        Log("dmt_srv", 102, "SYNC n=" + s_Elapsed.ToString() + " t=" + Pad2(shownHour) + ":" + Pad2(shownMinute) + ":" + Pad2(second) + " p=" + sent.ToString());
+        if (s_Elapsed == 1 || s_Elapsed % 30 == 0 || sent == 0)
+        {
+            s_LastLoggedElapsed = s_Elapsed;
+            Log("dmt_srv", 104, "SYNC n=" + s_Elapsed.ToString() + " t=" + Pad2(shownHour) + ":" + Pad2(shownMinute) + ":" + Pad2(second) + " p=" + sent.ToString());
+        }
     }
 
     static int DaysInMonth(int year, int month)
