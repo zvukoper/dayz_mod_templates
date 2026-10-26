@@ -1,10 +1,5 @@
 // DayZ Minimal Interface test interface — server. Send the server machine's current time once per second.
 
-class DMT_RemoteProcedureCallId
-{
-    static const int SERVER_TIME_UPDATE = 19740621;
-};
-
 class DMT_Server
 {
     static int s_ServerSequenceNumber;
@@ -29,12 +24,12 @@ class DMT_Server
     {
         if (s_ServerClockStarted)
         {
-            Log(32, "Server clock already started");
+            Log(27, "Server clock already started");
             return;
         }
         if (!GetGame() || !GetGame().IsServer())
         {
-            Log(37, "Server role unavailable; server clock was not started");
+            Log(32, "Server role unavailable; server clock was not started");
             return;
         }
 
@@ -42,7 +37,7 @@ class DMT_Server
         s_ServerSequenceNumber = 0;
         s_NoConnectedPlayers = false;
 
-        Log(45, "Server time update scheduled; interval milliseconds=1000");
+        Log(40, "Server time update scheduled; interval milliseconds=1000");
         GetGame().GetCallQueue(CALL_CATEGORY_GAMEPLAY).CallLater(Tick, 1000, true);
     }
 
@@ -50,7 +45,7 @@ class DMT_Server
     {
         if (!GetGame())
         {
-            Log(53, "Server game instance is unavailable during time update");
+            Log(48, "Server game instance is unavailable during time update");
             return;
         }
 
@@ -83,17 +78,17 @@ class DMT_Server
             s_NoConnectedPlayers = noPlayers;
             if (noPlayers)
             {
-                Log(86, "No connected players were found");
+                Log(81, "No connected players were found");
             }
             else
             {
-                Log(90, "Connected players are available");
+                Log(85, "Connected players are available");
             }
         }
 
         if (s_ServerSequenceNumber == 1 || s_ServerSequenceNumber % 30 == 0)
         {
-            Log(96, "Server time sent: sequence=" + s_ServerSequenceNumber.ToString() + " time=" + FormatTwoDigits(hour) + ":" + FormatTwoDigits(minute) + ":" + FormatTwoDigits(second) + " connected player count=" + sent.ToString());
+            Log(91, "Server time sent: sequence=" + s_ServerSequenceNumber.ToString() + " time=" + FormatTwoDigits(hour) + ":" + FormatTwoDigits(minute) + ":" + FormatTwoDigits(second) + " connected player count=" + sent.ToString());
         }
     }
 };
@@ -103,8 +98,8 @@ modded class MissionServer
     override void OnInit()
     {
         super.OnInit();
-        DMT_Server.Log(106, "Server mission initialization started");
+        DMT_Server.Log(101, "Server mission initialization started");
         DMT_Server.Start();
-        DMT_Server.Log(108, "Server mission initialization completed");
+        DMT_Server.Log(103, "Server mission initialization completed");
     }
 };
