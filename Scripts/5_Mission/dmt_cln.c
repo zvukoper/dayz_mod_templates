@@ -163,15 +163,7 @@ class DMT_Client
         if (DMT_NetworkTimeState.s_ReceivedUpdateCount > s_LastProcessedNetworkUpdateCount)
         {
             s_LastProcessedNetworkUpdateCount = DMT_NetworkTimeState.s_ReceivedUpdateCount;
-            OnServerTime(
-                DMT_NetworkTimeState.s_Year,
-                DMT_NetworkTimeState.s_Month,
-                DMT_NetworkTimeState.s_Day,
-                DMT_NetworkTimeState.s_Hour,
-                DMT_NetworkTimeState.s_Minute,
-                DMT_NetworkTimeState.s_Second,
-                DMT_NetworkTimeState.s_Sequence
-            );
+            OnServerTime( DMT_NetworkTimeState.s_Year, DMT_NetworkTimeState.s_Month, DMT_NetworkTimeState.s_Day, DMT_NetworkTimeState.s_Hour, DMT_NetworkTimeState.s_Minute, DMT_NetworkTimeState.s_Second, DMT_NetworkTimeState.s_Sequence );
         }
         if (!s_HasTime)
         {
@@ -183,7 +175,7 @@ class DMT_Client
         if (s_RemoteProcedureCallAge >= 5.0 && !s_RemoteProcedureCallTimedOut)
         {
             s_RemoteProcedureCallTimedOut = true;
-            Log(186, "Server time updates have stopped: elapsed seconds=" + s_RemoteProcedureCallAge.ToString());
+            Log(178, "Server time updates have stopped: elapsed seconds=" + s_RemoteProcedureCallAge.ToString());
             Chat("Server time updates have stopped");
         }
 
@@ -201,12 +193,12 @@ class DMT_Client
             s_Inventory = inventory;
             if (inventory)
             {
-                Log(204, "Inventory opened");
+                Log(196, "Inventory opened");
                 Chat("Inventory opened");
             }
             else
             {
-                Log(209, "Inventory closed");
+                Log(201, "Inventory closed");
                 Chat("Inventory closed");
             }
         }
@@ -234,7 +226,7 @@ modded class MissionGameplay
         {
             return;
         }
-        DMT_Client.Log(237, "Mission gameplay initialization started");
+        DMT_Client.Log(229, "Mission gameplay initialization started");
         DMT_Client.Init();
     }
 
@@ -250,7 +242,7 @@ modded class MissionGameplay
 
     override void OnMissionFinish()
     {
-        DMT_Client.Log(253, "Mission gameplay cleanup started");
+        DMT_Client.Log(245, "Mission gameplay cleanup started");
         if (DMT_Client.s_Root)
         {
             DMT_Client.s_Root.Unlink();
