@@ -20,7 +20,7 @@ class DMT_Server
 
     static void Log(int sourceLine, string message)
     {
-        Print("[DMT][dmt_srv:" + sourceLine.ToString() + "] " + message);
+        Print("[DayZ Minimal Interface][dmt_srv:" + sourceLine.ToString() + "] " + message);
     }
 
     static void Start()
