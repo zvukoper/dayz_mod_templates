@@ -110,14 +110,14 @@ class DMT_Client
 
         if (s_Elapsed != s_LastRpcSequence + 1 && s_LastRpcSequence > 0)
         {
-            Log(126, "RPC GAP prev=" + s_LastRpcSequence.ToString() + " now=" + s_Elapsed.ToString());
+            Log(125, "RPC GAP prev=" + s_LastRpcSequence.ToString() + " now=" + s_Elapsed.ToString());
             Chat("RPC GAP");
         }
         s_LastRpcSequence = s_Elapsed;
 
         if (s_Elapsed == 1 || (s_Elapsed % 30) == 0)
         {
-            Log(134, "RPC ok n=" + s_Elapsed.ToString() + " t=" + Pad2(s_Hour) + ":" + Pad2(s_Minute) + ":" + Pad2(s_Second));
+            Log(133, "RPC ok n=" + s_Elapsed.ToString() + " t=" + Pad2(s_Hour) + ":" + Pad2(s_Minute) + ":" + Pad2(s_Second));
             Chat("RPC OK n=" + s_Elapsed.ToString());
         }
     }
@@ -127,7 +127,7 @@ class DMT_Client
         if (!s_Ready) return;
         if (!s_Root || !s_Time)
         {
-            Log(126, "UPDATE widget lost");
+            Log(129, "UPDATE widget lost");
             s_Ready = false;
             return;
         }
@@ -140,7 +140,7 @@ class DMT_Client
         s_RpcAge += timeslice;
         if (s_RpcAge >= 5.0)
         {
-            Log(104, "RPC stale age=" + s_RpcAge.ToString());
+            Log(142, "RPC stale age=" + s_RpcAge.ToString());
             Chat("RPC STALE");
             s_RpcAge = 0;
         }
@@ -157,7 +157,7 @@ class DMT_Client
         if (inventory != s_Inventory)
         {
             s_Inventory = inventory;
-            Log(145, "INV open=" + inventory.ToString());
+            Log(159, "INV open=" + inventory.ToString());
             Chat("INV " + (inventory ? "OPEN" : "CLOSE"));
         }
 
