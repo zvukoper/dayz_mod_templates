@@ -108,9 +108,14 @@ class DMT_Client
         s_RpcAge = 0;
         s_Accumulator = 0;
 
-        if (s_Elapsed != s_LastRpcSequence + 1 && s_LastRpcSequence > 0)
+        if (s_Elapsed <= s_LastRpcSequence)
         {
-            Log(125, "RPC GAP prev=" + s_LastRpcSequence.ToString() + " now=" + s_Elapsed.ToString());
+            Log(125, "RPC ORDER prev=" + s_LastRpcSequence.ToString() + " now=" + s_Elapsed.ToString());
+            Chat("RPC ORDER");
+        }
+        else if (s_LastRpcSequence > 0 && s_Elapsed > s_LastRpcSequence + 1)
+        {
+            Log(128, "RPC GAP prev=" + s_LastRpcSequence.ToString() + " now=" + s_Elapsed.ToString());
             Chat("RPC GAP");
         }
         s_LastRpcSequence = s_Elapsed;
