@@ -19,8 +19,8 @@ class CfgMods
         hideName = 0;
         hidePicture = 1;
         name = "DayZ Minimal Interface";
-        credits = "DMT";
-        author = "DMT";
+        credits = "DayZ Minimal Interface";
+        author = "DayZ Minimal Interface";
         authorID = "0";
         version = "0.1.0";
         type = "mod";
