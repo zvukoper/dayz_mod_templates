@@ -77,9 +77,6 @@ class DMT_Server
         shownHour = worldHour;
         shownMinute = worldMinute;
 
-        if (s_Elapsed == 1)
-            s_LastWorldMinuteKey = worldYear * 100000000 + worldMonth * 1000000 + worldDay * 10000 + worldHour * 100 + worldMinute;
-
         int minuteKey = worldYear * 100000000 + worldMonth * 1000000 + worldDay * 10000 + worldHour * 100 + worldMinute;
         if (minuteKey != s_LastWorldMinuteKey)
         {
