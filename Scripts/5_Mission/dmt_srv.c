@@ -30,6 +30,11 @@ class DMT_Server
             Log(22, "START already=1");
             return;
         }
+        if (!GetGame() || !GetGame().IsServer())
+        {
+            Log(26, "START server=0");
+            return;
+        }
         s_Started = true;
         s_Elapsed = 0;
         s_NoPlayers = false;
