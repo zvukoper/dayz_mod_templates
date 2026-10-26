@@ -221,7 +221,7 @@ modded class DayZGame
     {
         // Respect the vanilla dispatcher first, including Event_OnRPC.
         super.OnRPC(sender, target, rpc_type, ctx);
-        if (rpc_type == DMT_RPC.TIME)
+        if (GetGame() && !GetGame().IsServer() && rpc_type == DMT_RPC.TIME)
         {
             DMT_Client.OnServerTime(ctx);
         }
