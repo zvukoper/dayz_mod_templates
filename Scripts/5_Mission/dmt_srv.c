@@ -3,7 +3,7 @@ static const int DMT_RPC_TIME = 19740621;
 
 class DMT_Server
 {
-    static int s_Elapsed;
+    static int s_Elapsed;\n    static int s_LastWorldMinuteKey;\n    static int s_SecondPhase;
     static int s_BaseYear, s_BaseMonth, s_BaseDay, s_BaseHour, s_BaseMinute;
     static bool s_Started;
 
@@ -26,7 +26,7 @@ class DMT_Server
             return;
         }
         s_Started = true;
-        s_Elapsed = 0;
+        s_Elapsed = 0;\n        s_LastWorldMinuteKey = -1;\n        s_SecondPhase = 0;
 
         if (GetGame() && GetGame().GetWorld())
         {
@@ -66,26 +66,31 @@ class DMT_Server
         shownMinute = shownMinute % 60;
         shownHour = shownHour % 24;
 
-        // Roll date at midnight. DayZ world API exposes date to minute precision;
-        // this compact clock is synchronized to the server mission start.
-        if ((s_BaseHour + ((s_BaseMinute + (s_Elapsed / 60)) / 60)) >= 24)
+        // DayZ time acceleration/commands must be respected: derive each packet
+        // from the current world hour/minute, and use elapsed seconds only
+        // within the current minute. If world minute changes, reset second phase.
+        int worldYear, worldMonth, worldDay, worldHour, worldMinute;
+        GetGame().GetWorld().GetDate(worldYear, worldMonth, worldDay, worldHour, worldMinute);
+        shownYear = worldYear;
+        shownMonth = worldMonth;
+        shownDay = worldDay;
+        shownHour = worldHour;
+        shownMinute = worldMinute;
+
+        if (s_Elapsed == 1)
+            s_LastWorldMinuteKey = worldYear * 100000000 + worldMonth * 1000000 + worldDay * 10000 + worldHour * 100 + worldMinute;
+
+        int minuteKey = worldYear * 100000000 + worldMonth * 1000000 + worldDay * 10000 + worldHour * 100 + worldMinute;
+        if (minuteKey != s_LastWorldMinuteKey)
         {
-            int totalMinutes = s_BaseHour * 60 + s_BaseMinute + (s_Elapsed / 60);
-            int daysPassed = totalMinutes / 1440;
-            int baseDay = s_BaseDay + daysPassed;
-            // Month lengths incl. leap years. Small loop runs only at a day rollover.
-            while (baseDay > DaysInMonth(shownYear, shownMonth))
-            {
-                baseDay = baseDay - DaysInMonth(shownYear, shownMonth);
-                shownMonth++;
-                if (shownMonth > 12)
-                {
-                    shownMonth = 1;
-                    shownYear++;
-                }
-            }
-            shownDay = baseDay;
+            s_LastWorldMinuteKey = minuteKey;
+            s_SecondPhase = 0;
+            Log("dmt_srv", 73, "WORLD minute=" + Pad2(worldHour) + ":" + Pad2(worldMinute));
         }
+        else
+            s_SecondPhase++;
+
+        int second = s_SecondPhase % 60;
 
         array<Man> players = new array<Man>();
         GetGame().GetPlayers(players);
