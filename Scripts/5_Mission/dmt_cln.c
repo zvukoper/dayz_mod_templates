@@ -4,6 +4,8 @@ class DMT_Client
     static Widget s_Root;
     static TextWidget s_Time;
     static int s_Year, s_Month, s_Day, s_Hour, s_Minute, s_Second, s_Elapsed;
+    static int s_LastRpcSequence;
+    static float s_RpcAge;
     static bool s_HasTime, s_Inventory, s_Ready;
     static float s_Accumulator;
     static string s_LastText = "";
@@ -83,33 +85,6 @@ class DMT_Client
         Chat("HUD OK");
     }
 
-    static void OnServerTime(ParamsReadContext ctx)
-    {
-        Log(96, "RPC enter");
-        Param7<int, int, int, int, int, int, int> p = new Param7<int, int, int, int, int, int, int>(0, 0, 0, 0, 0, 0, 0);
-        if (!ctx.Read(p))
-        {
-            Log(97, "RPC read=0");
-            Chat("RPC READ FAIL");
-            return;
-        }
-
-        s_Year = p.param1;
-        s_Month = p.param2;
-        s_Day = p.param3;
-        s_Hour = p.param4;
-        s_Minute = p.param5;
-        s_Second = p.param6;
-        s_Elapsed = p.param7;
-        s_HasTime = true;
-        s_Accumulator = 0;
-
-        if (s_Elapsed == 1 || (s_Elapsed % 30) == 0)
-        {
-            Log(116, "RPC ok n=" + s_Elapsed.ToString() + " t=" + Pad2(s_Hour) + ":" + Pad2(s_Minute) + ":" + Pad2(s_Second));
-            Chat("RPC OK n=" + s_Elapsed.ToString());
-        }
-    }
 
     static void Update(float timeslice)
     {
@@ -124,6 +99,14 @@ class DMT_Client
         {
             s_Time.SetText("SERVER --:--:--");
             return;
+        }
+
+        s_RpcAge += timeslice;
+        if (s_RpcAge >= 5.0)
+        {
+            Log(101, "RPC stale age=" + s_RpcAge.ToString());
+            Chat("RPC STALE");
+            s_RpcAge = 0;
         }
 
         s_Accumulator += timeslice;
@@ -181,6 +164,8 @@ modded class MissionGameplay
         DMT_Client.s_Ready = false;
         DMT_Client.s_HasTime = false;
         DMT_Client.s_Inventory = false;
+        DMT_Client.s_RpcAge = 0;
+        DMT_Client.s_LastRpcSequence = 0;
         DMT_Client.s_LastText = "";
         super.OnMissionFinish();
     }
