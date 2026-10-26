@@ -1,6 +1,6 @@
 class CfgPatches
 {
-    class DMT_MinUI
+    class DayZ_Minimal_Interface
     {
         units[] = {};
         weapons[] = {};
@@ -11,14 +11,14 @@ class CfgPatches
 
 class CfgMods
 {
-    class DMT_MinUI
+    class DayZ_Minimal_Interface
     {
         dir = "dmt";
         picture = "";
         action = "";
         hideName = 0;
         hidePicture = 1;
-        name = "DMT Minimal Interface";
+        name = "DayZ Minimal Interface";
         credits = "DMT";
         author = "DMT";
         authorID = "0";
