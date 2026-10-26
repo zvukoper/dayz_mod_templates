@@ -65,9 +65,7 @@ class DMT_Server
                 continue;
             }
 
-            Param7<int, int, int, int, int, int, int> payload = new Param7<int, int, int, int, int, int, int>(
-                year, month, day, hour, minute, second, s_ServerSequenceNumber
-            );
+            Param7<int, int, int, int, int, int, int> payload = new Param7<int, int, int, int, int, int, int>(year, month, day, hour, minute, second, s_ServerSequenceNumber);
             GetGame().RPCSingleParam(player, DMT_RemoteProcedureCallId.SERVER_TIME_UPDATE, payload, true, player.GetIdentity());
             sent++;
         }
@@ -78,17 +76,17 @@ class DMT_Server
             s_NoConnectedPlayers = noPlayers;
             if (noPlayers)
             {
-                Log(81, "No connected players were found");
+                Log(79, "No connected players were found");
             }
             else
             {
-                Log(85, "Connected players are available");
+                Log(83, "Connected players are available");
             }
         }
 
         if (s_ServerSequenceNumber == 1 || s_ServerSequenceNumber % 30 == 0)
         {
-            Log(91, "Server time sent: sequence=" + s_ServerSequenceNumber.ToString() + " time=" + FormatTwoDigits(hour) + ":" + FormatTwoDigits(minute) + ":" + FormatTwoDigits(second) + " connected player count=" + sent.ToString());
+            Log(89, "Server time sent: sequence=" + s_ServerSequenceNumber.ToString() + " time=" + FormatTwoDigits(hour) + ":" + FormatTwoDigits(minute) + ":" + FormatTwoDigits(second) + " connected player count=" + sent.ToString());
         }
     }
 };
@@ -98,8 +96,8 @@ modded class MissionServer
     override void OnInit()
     {
         super.OnInit();
-        DMT_Server.Log(101, "Server mission initialization started");
+        DMT_Server.Log(99, "Server mission initialization started");
         DMT_Server.Start();
-        DMT_Server.Log(103, "Server mission initialization completed");
+        DMT_Server.Log(101, "Server mission initialization completed");
     }
 };
