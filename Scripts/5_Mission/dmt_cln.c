@@ -44,7 +44,7 @@ class DMT_Client
         Print("[DayZ Minimal Interface][dmt_cln:" + line.ToString() + "] " + msg);
     }
 
-    static void Chat(string msg)
+    static void WriteChatMessage(string msg)
     {
         // Do not depend on private chat fields or simulate a remote procedure call.
         // These messages appear only in this player's chat and are not sent to other players.
@@ -79,7 +79,7 @@ class DMT_Client
         if (!s_Root)
         {
             Log(81, "ERROR layout creation failed path=dmt/GUI/dmt.layout");
-            Chat("Interface layout creation failed");
+            WriteChatMessage("Interface layout creation failed");
             return;
         }
 
@@ -90,14 +90,14 @@ class DMT_Client
             s_Root.Unlink();
             s_Root = null;
             Log(92, "ERROR required text widget is missing name=DMT_Time");
-            Chat("Required text widget was not found");
+            WriteChatMessage("Required text widget was not found");
             return;
         }
 
         s_Root.Show(true);
         s_Ready = true;
         Log(99, "Interface visibility enabled");
-        Chat("Interface initialized successfully");
+        WriteChatMessage("Interface initialized successfully");
     }
 
     static void OnServerTime(int year, int month, int day, int hour, int minute, int second, int elapsed)
@@ -122,19 +122,19 @@ class DMT_Client
         if (s_Elapsed <= s_LastRemoteProcedureCallSequence)
         {
             Log(124, "Remote procedure call arrived out of order: previous sequence=" + s_LastRemoteProcedureCallSequence.ToString() + " current sequence=" + s_Elapsed.ToString());
-            Chat("Remote procedure call arrived out of order");
+            WriteChatMessage("Remote procedure call arrived out of order");
         }
         else if (s_LastRemoteProcedureCallSequence > 0 && s_Elapsed > s_LastRemoteProcedureCallSequence + 1)
         {
             Log(129, "Remote procedure call sequence skipped: previous sequence=" + s_LastRemoteProcedureCallSequence.ToString() + " current sequence=" + s_Elapsed.ToString());
-            Chat("Remote procedure call sequence skipped");
+            WriteChatMessage("Remote procedure call sequence skipped");
         }
         s_LastRemoteProcedureCallSequence = s_Elapsed;
 
         if (s_Elapsed == 1 || (s_Elapsed % 30) == 0)
         {
             Log(136, "Server time received successfully: sequence=" + s_Elapsed.ToString() + " time=" + Pad2(s_Hour) + ":" + Pad2(s_Minute) + ":" + Pad2(s_Second));
-            Chat("Server time received successfully: sequence=" + s_Elapsed.ToString());
+            WriteChatMessage("Server time received successfully: sequence=" + s_Elapsed.ToString());
         }
     }
 
@@ -148,7 +148,7 @@ class DMT_Client
         {
             s_LastReportedReadErrorCount = DMT_NetworkTimeState.s_ReadErrorCount;
             Log(150, "Remote procedure call data could not be read");
-            Chat("Remote procedure call data could not be read");
+            WriteChatMessage("Remote procedure call data could not be read");
         }
         if (!s_Ready)
         {
@@ -176,7 +176,7 @@ class DMT_Client
         {
             s_RemoteProcedureCallTimedOut = true;
             Log(178, "Server time updates have stopped: elapsed seconds=" + s_RemoteProcedureCallAge.ToString());
-            Chat("Server time updates have stopped");
+            WriteChatMessage("Server time updates have stopped");
         }
 
         s_Accumulator += timeslice;
@@ -194,12 +194,12 @@ class DMT_Client
             if (inventory)
             {
                 Log(196, "Inventory opened");
-                Chat("Inventory opened");
+                WriteChatMessage("Inventory opened");
             }
             else
             {
                 Log(201, "Inventory closed");
-                Chat("Inventory closed");
+                WriteChatMessage("Inventory closed");
             }
         }
 
