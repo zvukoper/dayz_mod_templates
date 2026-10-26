@@ -1,6 +1,4 @@
 // DMT Minimal UI — client. Every state transition is logged; no frame spam.
-static const int DMT_RPC_TIME = 19740621;
-
 class DMT_Client
 {
     static Widget s_Root;
@@ -87,6 +85,7 @@ class DMT_Client
 
     static void OnServerTime(ParamsReadContext ctx)
     {
+        Log(96, "RPC enter");
         Param7<int, int, int, int, int, int, int> p = new Param7<int, int, int, int, int, int, int>(0, 0, 0, 0, 0, 0, 0);
         if (!ctx.Read(p))
         {
@@ -193,7 +192,7 @@ modded class DayZGame
     {
         // Respect the vanilla dispatcher first, including Event_OnRPC.
         super.OnRPC(sender, target, rpc_type, ctx);
-        if (rpc_type == DMT_RPC_TIME)
+        if (rpc_type == DMT_RPC.TIME)
         {
             DMT_Client.OnServerTime(ctx);
         }
