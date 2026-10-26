@@ -86,6 +86,42 @@ class DMT_Client
     }
 
 
+    static void OnServerTime(ParamsReadContext ctx)
+    {
+        Log(108, "RPC enter");
+        Param7<int, int, int, int, int, int, int> p = new Param7<int, int, int, int, int, int, int>(0, 0, 0, 0, 0, 0, 0);
+        if (!ctx.Read(p))
+        {
+            Log(111, "RPC read=0");
+            Chat("RPC READ FAIL");
+            return;
+        }
+
+        s_Year = p.param1;
+        s_Month = p.param2;
+        s_Day = p.param3;
+        s_Hour = p.param4;
+        s_Minute = p.param5;
+        s_Second = p.param6;
+        s_Elapsed = p.param7;
+        s_HasTime = true;
+        s_RpcAge = 0;
+        s_Accumulator = 0;
+
+        if (s_Elapsed != s_LastRpcSequence + 1 && s_LastRpcSequence > 0)
+        {
+            Log(126, "RPC GAP prev=" + s_LastRpcSequence.ToString() + " now=" + s_Elapsed.ToString());
+            Chat("RPC GAP");
+        }
+        s_LastRpcSequence = s_Elapsed;
+
+        if (s_Elapsed == 1 || (s_Elapsed % 30) == 0)
+        {
+            Log(134, "RPC ok n=" + s_Elapsed.ToString() + " t=" + Pad2(s_Hour) + ":" + Pad2(s_Minute) + ":" + Pad2(s_Second));
+            Chat("RPC OK n=" + s_Elapsed.ToString());
+        }
+    }
+
     static void Update(float timeslice)
     {
         if (!s_Ready) return;
