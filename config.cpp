@@ -18,7 +18,7 @@ class CfgMods
         action = "";
         hideName = 0;
         hidePicture = 1;
-        name = "DMT Minimal UI";
+        name = "DMT Minimal Interface";
         credits = "DMT";
         author = "DMT";
         authorID = "0";
