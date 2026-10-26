@@ -39,7 +39,7 @@ class DMT_Client
             Log(39, "Chat messages are unavailable");
             return;
         }
-        ChatMessageEventParams p = new ChatMessageEventParams(CCSystem, "", "[DMT] " + msg, "");
+        ChatMessageEventParams p = new ChatMessageEventParams(CCSystem, "", "[DayZ Minimal Interface] " + msg, "");
         mission.m_Chat.Add(p);
     }
 
