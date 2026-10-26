@@ -129,6 +129,7 @@ class DMT_Client
 
     static void Update(float timeslice)
     {
+        if (!GetGame() || GetGame().IsServer()) return;
         if (!s_Ready) return;
         if (!s_Root || !s_Time)
         {
@@ -183,19 +184,21 @@ modded class MissionGameplay
     override void OnInit()
     {
         super.OnInit();
-        DMT_Client.Log(166, "MissionGameplay.OnInit");
+        if (!GetGame() || GetGame().IsServer()) return;
+        DMT_Client.Log(187, "MissionGameplay.OnInit");
         DMT_Client.Init();
     }
 
     override void OnUpdate(float timeslice)
     {
         super.OnUpdate(timeslice);
+        if (!GetGame() || GetGame().IsServer()) return;
         DMT_Client.Update(timeslice);
     }
 
     override void OnMissionFinish()
     {
-        DMT_Client.Log(178, "MissionGameplay.OnMissionFinish");
+        DMT_Client.Log(199, "MissionGameplay.OnMissionFinish");
         if (DMT_Client.s_Root)
         {
             DMT_Client.s_Root.Unlink();
