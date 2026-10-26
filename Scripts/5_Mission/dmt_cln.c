@@ -6,8 +6,7 @@ class DMT_Client
     static Widget s_Root;
     static TextWidget s_Time;
     static int s_Year, s_Month, s_Day, s_Hour, s_Minute, s_Second, s_Elapsed;
-    static int s_LastSequence;
-    static bool s_HasTime, s_Inventory, s_Ready, s_RpcSeen;
+    static bool s_HasTime, s_Inventory, s_Ready;
     static float s_Accumulator;
     static string s_LastText = "";
 
@@ -104,7 +103,6 @@ class DMT_Client
         s_Second = p.param6;
         s_Elapsed = p.param7;
         s_HasTime = true;
-        s_RpcSeen = true;
         s_Accumulator = 0;
 
         if (s_Elapsed == 1 || (s_Elapsed % 30) == 0)
