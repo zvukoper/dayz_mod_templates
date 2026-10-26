@@ -31,10 +31,16 @@ class DMT_Client
 
     static void Chat(string msg)
     {
-        // Current DayZ chat message event is local UI. This is diagnostic-only.
-        ChatMessageEventParams p = new ChatMessageEventParams(CCSystem, "", "[DMT] " + msg, "");
+        // Prefer the stock game's chat pipeline. If chat is unavailable during
+        // mission transitions, log remains authoritative and no UI is touched.
         MissionGameplay mission = MissionGameplay.Cast(GetGame().GetMission());
-        if (mission && mission.m_Chat) mission.m_Chat.Add(p);
+        if (!mission || !mission.m_Chat)
+        {
+            Log(34, "CHAT unavailable");
+            return;
+        }
+        ChatMessageEventParams p = new ChatMessageEventParams(CCSystem, "", "[DMT] " + msg, "");
+        mission.m_Chat.Add(p);
     }
 
     static void Init()
